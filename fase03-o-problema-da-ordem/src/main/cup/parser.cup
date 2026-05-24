@@ -1,73 +1,61 @@
 package br.maua.cic303;
 
-import java_cup.runtime.Symbol;
+import java_cup.runtime.*;
 
 parser code {:
     public void syntax_error(Symbol cur_token) {
-        throw new Error("Erro sintático");
+        throw new RuntimeException(
+            "Erro Sintático"
+        );
     }
 :};
 
+/* TERMINAIS */
 terminal IF, THEN, ELSE, WHILE;
-terminal PLUS, MINUS, TIMES, DIV, MOD;
-terminal ASSIGN;
-terminal EQ, NE, GT, LT, GE, LE;
-terminal LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
+terminal ASSIGN, LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
+terminal EOF;
 
 terminal String ID;
 terminal Integer NUMBER;
 
-non terminal program;
-non terminal lista_comandos;
-non terminal comando;
-non terminal bloco;
-non terminal expressao;
+terminal String ADD_OP;
+terminal String MUL_OP;
+terminal String REL_OP;
 
-precedence right ELSE;
-precedence left EQ, NE, GT, LT, GE, LE;
-precedence left PLUS, MINUS;
-precedence left TIMES, DIV, MOD;
+/* NÃO TERMINAIS */
+non terminal program;
+non terminal stmt_list;
+non terminal stmt;
+non terminal expr;
+
+/* PRECEDÊNCIA */
+precedence left REL_OP;
+precedence left ADD_OP;
+precedence left MUL_OP;
 
 start with program;
 
-program ::=
-    lista_comandos
-;
+/* GRAMÁTICA */
 
-lista_comandos ::=
-      lista_comandos comando
-    | comando
-    |
-;
+program ::= stmt_list EOF ;
 
-comando ::=
-      ID ASSIGN expressao SEMI
-    | IF LPAREN expressao RPAREN THEN bloco
-    | IF LPAREN expressao RPAREN THEN bloco ELSE bloco
-    | WHILE LPAREN expressao RPAREN bloco
-    | bloco
-    | SEMI
-;
+stmt_list ::= stmt_list stmt
+            | stmt
+            | /* vazio */
+            ;
 
-bloco ::=
-      LBRACE lista_comandos RBRACE
-;
+stmt ::= ID ASSIGN expr SEMI
+       | IF LPAREN expr RPAREN THEN stmt
+       | IF LPAREN expr RPAREN THEN stmt ELSE stmt
+       | WHILE LPAREN expr RPAREN stmt
+       | LBRACE stmt_list RBRACE
+       | SEMI
+       ;
 
-expressao ::=
-      expressao PLUS expressao
-    | expressao MINUS expressao
-    | expressao TIMES expressao
-    | expressao DIV expressao
-    | expressao MOD expressao
-
-    | expressao EQ expressao
-    | expressao NE expressao
-    | expressao GT expressao
-    | expressao LT expressao
-    | expressao GE expressao
-    | expressao LE expressao
-
-    | LPAREN expressao RPAREN
-    | ID
-    | NUMBER
-;
+expr ::= expr ADD_OP expr
+       | expr MUL_OP expr
+       | expr REL_OP expr
+       | LPAREN expr RPAREN
+       | NUMBER
+       | ID
+       ;

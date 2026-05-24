@@ -1,84 +1,165 @@
-O parser.cup
 package br.maua.cic303;
 
-import java_cup.runtime.*;
+import java_cup.runtime.Symbol;
 
-parser code {:
-    public void syntax_error(Symbol cur_token) {
+%%
+
+%class Lexer
+%public
+%unicode
+%cup
+%line
+%column
+
+%{
+
+private Symbol symbol(int type) {
+    return new Symbol(type, yyline, yycolumn);
+}
+
+private Symbol symbol(int type, Object value) {
+    return new Symbol(type, yyline, yycolumn, value);
+}
+
+%}
+
+/* MACROS */
+
+LineTerminator = \r|\n|\r\n
+WhiteSpace = {LineTerminator}|[ \t\f]
+
+Letter = [a-zA-Z]
+Digit = [0-9]
+
+Identifier = {Letter}({Letter}|{Digit}|_)*
+
+Number = [0-9]+(\.[0-9]+)?
+
+%%
+
+<YYINITIAL> {
+
+    /* ESPAÇOS */
+    {WhiteSpace} { }
+
+    /* PALAVRAS RESERVADAS */
+
+    "if" {
+        return symbol(sym.IF);
+    }
+
+    "then" {
+        return symbol(sym.THEN);
+    }
+
+    "else" {
+        return symbol(sym.ELSE);
+    }
+
+    "while" {
+        return symbol(sym.WHILE);
+    }
+
+    /* PONTUAÇÃO */
+
+    "(" {
+        return symbol(sym.LPAREN);
+    }
+
+    ")" {
+        return symbol(sym.RPAREN);
+    }
+
+    "{" {
+        return symbol(sym.LBRACE);
+    }
+
+    "}" {
+        return symbol(sym.RBRACE);
+    }
+
+    ";" {
+        return symbol(sym.SEMI);
+    }
+
+    /* OPERADORES RELACIONAIS */
+
+    "==" {
+        return symbol(sym.REL_OP, yytext());
+    }
+
+    "!=" {
+        return symbol(sym.REL_OP, yytext());
+    }
+
+    "<=" {
+        return symbol(sym.REL_OP, yytext());
+    }
+
+    ">=" {
+        return symbol(sym.REL_OP, yytext());
+    }
+
+    "<" {
+        return symbol(sym.REL_OP, yytext());
+    }
+
+    ">" {
+        return symbol(sym.REL_OP, yytext());
+    }
+
+    /* ATRIBUIÇÃO */
+
+    "=" {
+        return symbol(sym.ASSIGN);
+    }
+
+    /* OPERADORES MATEMÁTICOS */
+
+    "+" {
+        return symbol(sym.ADD_OP, yytext());
+    }
+
+    "-" {
+        return symbol(sym.ADD_OP, yytext());
+    }
+
+    "*" {
+        return symbol(sym.MUL_OP, yytext());
+    }
+
+    "/" {
+        return symbol(sym.MUL_OP, yytext());
+    }
+
+    "%" {
+        return symbol(sym.MUL_OP, yytext());
+    }
+
+    /* IDENTIFICADORES */
+
+    {Identifier} {
+        return symbol(sym.ID, yytext());
+    }
+
+    /* NÚMEROS */
+
+    {Number} {
+        return symbol(sym.NUMBER, Integer.parseInt(yytext()));
+    }
+
+    /* ERRO LÉXICO */
+
+    . {
         throw new RuntimeException(
-            "Erro Sintático na linha " +
-            cur_token.left +
-            ", coluna " +
-            cur_token.right
+            "Erro Léxico: caractere ilegal -> " + yytext()
         );
     }
-:};
 
-/* TERMINAIS */
-terminal IF, THEN, ELSE, WHILE;
-terminal ASSIGN, LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
+}
 
-terminal String ID;
-terminal String NUMBER;
+/* FIM DO ARQUIVO */
 
-terminal String ADD_OP;
-terminal String MUL_OP;
-terminal String REL_OP;
-
-/* NÃO TERMINAIS */
-non terminal program;
-non terminal stmt_list;
-non terminal stmt;
-
-non terminal assign_stmt;
-non terminal if_stmt;
-non terminal while_stmt;
-non terminal block_stmt;
-non terminal null_stmt;
-
-non terminal expr;
-
-/* PRECEDÊNCIA */
-precedence left REL_OP;
-precedence left ADD_OP;
-precedence left MUL_OP;
-
-/* INÍCIO */
-start with program;
-
-/* GRAMÁTICA */
-
-program ::= stmt_list ;
-
-stmt_list ::= stmt_list stmt
-            | stmt
-            ;
-
-stmt ::= assign_stmt
-       | if_stmt
-       | while_stmt
-       | block_stmt
-       | null_stmt
-       ;
-
-assign_stmt ::= ID ASSIGN expr SEMI ;
-
-if_stmt ::= IF LPAREN expr RPAREN THEN block_stmt
-          | IF LPAREN expr RPAREN THEN block_stmt ELSE block_stmt
-          ;
-
-while_stmt ::= WHILE LPAREN expr RPAREN block_stmt ;
-
-block_stmt ::= LBRACE stmt_list RBRACE
-             | LBRACE RBRACE
-             ;
-
-null_stmt ::= SEMI ;
-
-expr ::= expr ADD_OP expr
-       | expr MUL_OP expr
-       | expr REL_OP expr
-       | LPAREN expr RPAREN
-       | NUMBER
-       | ID
-       ;
+<<EOF>> {
+    return symbol(sym.EOF);
+}
