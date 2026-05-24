@@ -5,33 +5,44 @@ import java_cup.runtime.*;
 parser code {:
     public void syntax_error(Symbol cur_token) {
         throw new RuntimeException(
-            "Erro Sintático"
+            "Erro Sintático na linha " +
+            cur_token.left +
+            ", coluna " +
+            cur_token.right
         );
     }
 :};
 
 /* TERMINAIS */
+
 terminal IF, THEN, ELSE, WHILE;
-terminal ASSIGN, LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
+terminal ASSIGN;
+terminal LPAREN, RPAREN;
+terminal LBRACE, RBRACE;
+terminal SEMI;
 terminal EOF;
 
 terminal String ID;
-terminal Integer NUMBER;
+terminal String NUMBER;
 
 terminal String ADD_OP;
 terminal String MUL_OP;
 terminal String REL_OP;
 
 /* NÃO TERMINAIS */
+
 non terminal program;
 non terminal stmt_list;
 non terminal stmt;
 non terminal expr;
 
 /* PRECEDÊNCIA */
+
 precedence left REL_OP;
 precedence left ADD_OP;
 precedence left MUL_OP;
+
+/* INÍCIO */
 
 start with program;
 
@@ -41,7 +52,6 @@ program ::= stmt_list EOF ;
 
 stmt_list ::= stmt_list stmt
             | stmt
-            | /* vazio */
             ;
 
 stmt ::= ID ASSIGN expr SEMI
@@ -49,6 +59,7 @@ stmt ::= ID ASSIGN expr SEMI
        | IF LPAREN expr RPAREN THEN stmt ELSE stmt
        | WHILE LPAREN expr RPAREN stmt
        | LBRACE stmt_list RBRACE
+       | LBRACE RBRACE
        | SEMI
        ;
 

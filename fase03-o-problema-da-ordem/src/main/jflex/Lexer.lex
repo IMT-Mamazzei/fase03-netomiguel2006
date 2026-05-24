@@ -33,13 +33,14 @@ Digit = [0-9]
 
 Identifier = {Letter}({Letter}|{Digit}|_)*
 
-Number = [0-9]+(\.[0-9]+)?
+Number = {Digit}+
 
 %%
 
 <YYINITIAL> {
 
     /* ESPAÇOS */
+
     {WhiteSpace} { }
 
     /* PALAVRAS RESERVADAS */
@@ -114,7 +115,7 @@ Number = [0-9]+(\.[0-9]+)?
         return symbol(sym.ASSIGN);
     }
 
-    /* OPERADORES MATEMÁTICOS */
+    /* OPERADORES ARITMÉTICOS */
 
     "+" {
         return symbol(sym.ADD_OP, yytext());
@@ -145,7 +146,7 @@ Number = [0-9]+(\.[0-9]+)?
     /* NÚMEROS */
 
     {Number} {
-        return symbol(sym.NUMBER, Integer.parseInt(yytext()));
+        return symbol(sym.NUMBER, yytext());
     }
 
     /* ERRO LÉXICO */
@@ -157,8 +158,6 @@ Number = [0-9]+(\.[0-9]+)?
     }
 
 }
-
-/* FIM DO ARQUIVO */
 
 <<EOF>> {
     return symbol(sym.EOF);
