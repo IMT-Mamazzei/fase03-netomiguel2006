@@ -8,8 +8,6 @@ parser code {:
     }
 :};
 
-/* TERMINAIS */
-
 terminal IF, THEN, ELSE, WHILE;
 
 terminal ASSIGN;
@@ -24,31 +22,21 @@ terminal TIMES, DIV, MOD;
 
 terminal EQ, NE, LT, GT, LE, GE;
 
-terminal EOF;
-
 terminal String ID;
 terminal String NUMBER;
-
-/* NÃO TERMINAIS */
 
 non terminal program;
 non terminal stmt_list;
 non terminal stmt;
 non terminal expr;
 
-/* PRECEDÊNCIA */
-
 precedence left EQ, NE, LT, GT, LE, GE;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIV, MOD;
 
-/* INÍCIO */
-
 start with program;
 
-/* GRAMÁTICA */
-
-program ::= stmt_list EOF ;
+program ::= stmt_list ;
 
 stmt_list ::= stmt_list stmt
             | stmt
