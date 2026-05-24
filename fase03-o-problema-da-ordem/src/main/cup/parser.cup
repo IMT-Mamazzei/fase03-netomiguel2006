@@ -4,30 +4,30 @@ import java_cup.runtime.*;
 
 parser code {:
     public void syntax_error(Symbol cur_token) {
-        throw new RuntimeException(
-            "Erro Sintático na linha " +
-            cur_token.left +
-            ", coluna " +
-            cur_token.right
-        );
+        throw new RuntimeException("Erro Sintático");
     }
 :};
 
 /* TERMINAIS */
 
 terminal IF, THEN, ELSE, WHILE;
+
 terminal ASSIGN;
+
 terminal LPAREN, RPAREN;
 terminal LBRACE, RBRACE;
+
 terminal SEMI;
+
+terminal PLUS, MINUS;
+terminal TIMES, DIV, MOD;
+
+terminal EQ, NE, LT, GT, LE, GE;
+
 terminal EOF;
 
 terminal String ID;
 terminal String NUMBER;
-
-terminal String ADD_OP;
-terminal String MUL_OP;
-terminal String REL_OP;
 
 /* NÃO TERMINAIS */
 
@@ -38,9 +38,9 @@ non terminal expr;
 
 /* PRECEDÊNCIA */
 
-precedence left REL_OP;
-precedence left ADD_OP;
-precedence left MUL_OP;
+precedence left EQ, NE, LT, GT, LE, GE;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIV, MOD;
 
 /* INÍCIO */
 
@@ -63,9 +63,17 @@ stmt ::= ID ASSIGN expr SEMI
        | SEMI
        ;
 
-expr ::= expr ADD_OP expr
-       | expr MUL_OP expr
-       | expr REL_OP expr
+expr ::= expr PLUS expr
+       | expr MINUS expr
+       | expr TIMES expr
+       | expr DIV expr
+       | expr MOD expr
+       | expr EQ expr
+       | expr NE expr
+       | expr LT expr
+       | expr GT expr
+       | expr LE expr
+       | expr GE expr
        | LPAREN expr RPAREN
        | NUMBER
        | ID

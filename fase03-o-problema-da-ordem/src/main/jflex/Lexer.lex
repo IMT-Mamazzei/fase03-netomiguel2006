@@ -32,130 +32,85 @@ Letter = [a-zA-Z]
 Digit = [0-9]
 
 Identifier = {Letter}({Letter}|{Digit}|_)*
-
 Number = {Digit}+
 
 %%
 
 <YYINITIAL> {
 
-    /* ESPAÇOS */
+{WhiteSpace} { }
 
-    {WhiteSpace} { }
+/* PALAVRAS RESERVADAS */
 
-    /* PALAVRAS RESERVADAS */
+"if" { return symbol(sym.IF); }
 
-    "if" {
-        return symbol(sym.IF);
-    }
+"then" { return symbol(sym.THEN); }
 
-    "then" {
-        return symbol(sym.THEN);
-    }
+"else" { return symbol(sym.ELSE); }
 
-    "else" {
-        return symbol(sym.ELSE);
-    }
+"while" { return symbol(sym.WHILE); }
 
-    "while" {
-        return symbol(sym.WHILE);
-    }
+/* PONTUAÇÃO */
 
-    /* PONTUAÇÃO */
+"(" { return symbol(sym.LPAREN); }
 
-    "(" {
-        return symbol(sym.LPAREN);
-    }
+")" { return symbol(sym.RPAREN); }
 
-    ")" {
-        return symbol(sym.RPAREN);
-    }
+"{" { return symbol(sym.LBRACE); }
 
-    "{" {
-        return symbol(sym.LBRACE);
-    }
+"}" { return symbol(sym.RBRACE); }
 
-    "}" {
-        return symbol(sym.RBRACE);
-    }
+";" { return symbol(sym.SEMI); }
 
-    ";" {
-        return symbol(sym.SEMI);
-    }
+/* OPERADORES RELACIONAIS */
 
-    /* OPERADORES RELACIONAIS */
+"==" { return symbol(sym.EQ); }
 
-    "==" {
-        return symbol(sym.REL_OP, yytext());
-    }
+"!=" { return symbol(sym.NE); }
 
-    "!=" {
-        return symbol(sym.REL_OP, yytext());
-    }
+"<=" { return symbol(sym.LE); }
 
-    "<=" {
-        return symbol(sym.REL_OP, yytext());
-    }
+">=" { return symbol(sym.GE); }
 
-    ">=" {
-        return symbol(sym.REL_OP, yytext());
-    }
+"<" { return symbol(sym.LT); }
 
-    "<" {
-        return symbol(sym.REL_OP, yytext());
-    }
+">" { return symbol(sym.GT); }
 
-    ">" {
-        return symbol(sym.REL_OP, yytext());
-    }
+/* ATRIBUIÇÃO */
 
-    /* ATRIBUIÇÃO */
+"=" { return symbol(sym.ASSIGN); }
 
-    "=" {
-        return symbol(sym.ASSIGN);
-    }
+/* OPERADORES ARITMÉTICOS */
 
-    /* OPERADORES ARITMÉTICOS */
+"+" { return symbol(sym.PLUS); }
 
-    "+" {
-        return symbol(sym.ADD_OP, yytext());
-    }
+"-" { return symbol(sym.MINUS); }
 
-    "-" {
-        return symbol(sym.ADD_OP, yytext());
-    }
+"*" { return symbol(sym.TIMES); }
 
-    "*" {
-        return symbol(sym.MUL_OP, yytext());
-    }
+"/" { return symbol(sym.DIV); }
 
-    "/" {
-        return symbol(sym.MUL_OP, yytext());
-    }
+"%" { return symbol(sym.MOD); }
 
-    "%" {
-        return symbol(sym.MUL_OP, yytext());
-    }
+/* IDENTIFICADORES */
 
-    /* IDENTIFICADORES */
+{Identifier} {
+    return symbol(sym.ID, yytext());
+}
 
-    {Identifier} {
-        return symbol(sym.ID, yytext());
-    }
+/* NÚMEROS */
 
-    /* NÚMEROS */
+{Number} {
+    return symbol(sym.NUMBER, yytext());
+}
 
-    {Number} {
-        return symbol(sym.NUMBER, yytext());
-    }
+/* ERRO */
 
-    /* ERRO LÉXICO */
-
-    . {
-        throw new RuntimeException(
-            "Erro Léxico: caractere ilegal -> " + yytext()
-        );
-    }
+. {
+    throw new RuntimeException(
+        "Erro Léxico: " + yytext()
+    );
+}
 
 }
 
