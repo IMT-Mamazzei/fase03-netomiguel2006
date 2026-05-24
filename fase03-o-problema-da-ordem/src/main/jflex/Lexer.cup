@@ -21,9 +21,11 @@ private Symbol symbol(int type, Object value) {
 
 %}
 
-/* MACROS */
+/* =========================
+   MACROS
+========================= */
 
-LineTerminator = \r|\n|\r\n
+LineTerminator = \r\n|\r|\n
 WhiteSpace = {LineTerminator}|[ \t\f]
 
 Letter = [a-zA-Z]
@@ -37,79 +39,160 @@ Number = [0-9]+(\.[0-9]+)?([Ee][+-]?[0-9]+)?
 
 <YYINITIAL> {
 
+/* =========================
+   ESPAÇOS EM BRANCO
+========================= */
+
 {WhiteSpace} { }
 
-/* PALAVRAS RESERVADAS */
+/* =========================
+   COMENTÁRIOS
+========================= */
 
-"if" { return symbol(sym.IF); }
+/* Comentário de linha */
+"//".* { }
 
-"then" { return symbol(sym.THEN); }
+/* Comentário de bloco */
+"/*"([^*]|\*+[^*/])*\*+"/" { }
 
-"else" { return symbol(sym.ELSE); }
+/* =========================
+   PALAVRAS RESERVADAS
+========================= */
 
-"while" { return symbol(sym.WHILE); }
+"if" {
+    return symbol(sym.IF);
+}
 
-/* PONTUAÇÃO */
+"then" {
+    return symbol(sym.THEN);
+}
 
-"(" { return symbol(sym.LPAREN); }
+"else" {
+    return symbol(sym.ELSE);
+}
 
-")" { return symbol(sym.RPAREN); }
+"while" {
+    return symbol(sym.WHILE);
+}
 
-"{" { return symbol(sym.LBRACE); }
+/* =========================
+   PONTUAÇÃO
+========================= */
 
-"}" { return symbol(sym.RBRACE); }
+"(" {
+    return symbol(sym.LPAREN);
+}
 
-";" { return symbol(sym.SEMI); }
+")" {
+    return symbol(sym.RPAREN);
+}
 
-/* OPERADORES RELACIONAIS */
+"{" {
+    return symbol(sym.LBRACE);
+}
 
-"==" { return symbol(sym.REL_OP, yytext()); }
+"}" {
+    return symbol(sym.RBRACE);
+}
 
-"!=" { return symbol(sym.REL_OP, yytext()); }
+";" {
+    return symbol(sym.SEMI);
+}
 
-"<=" { return symbol(sym.REL_OP, yytext()); }
+/* =========================
+   OPERADORES RELACIONAIS
+========================= */
 
-">=" { return symbol(sym.REL_OP, yytext()); }
+"==" {
+    return symbol(sym.REL_OP, yytext());
+}
 
-"<" { return symbol(sym.REL_OP, yytext()); }
+"!=" {
+    return symbol(sym.REL_OP, yytext());
+}
 
-">" { return symbol(sym.REL_OP, yytext()); }
+"<=" {
+    return symbol(sym.REL_OP, yytext());
+}
 
-/* ATRIBUIÇÃO */
+">=" {
+    return symbol(sym.REL_OP, yytext());
+}
 
-"=" { return symbol(sym.ASSIGN); }
+"<" {
+    return symbol(sym.REL_OP, yytext());
+}
 
-/* OPERADORES MATEMÁTICOS */
+">" {
+    return symbol(sym.REL_OP, yytext());
+}
 
-"+" { return symbol(sym.ADD_OP, yytext()); }
+/* =========================
+   ATRIBUIÇÃO
+========================= */
 
-"-" { return symbol(sym.ADD_OP, yytext()); }
+"=" {
+    return symbol(sym.ASSIGN);
+}
 
-"*" { return symbol(sym.MUL_OP, yytext()); }
+/* =========================
+   OPERADORES MATEMÁTICOS
+========================= */
 
-"/" { return symbol(sym.MUL_OP, yytext()); }
+"+" {
+    return symbol(sym.ADD_OP, yytext());
+}
 
-"%" { return symbol(sym.MUL_OP, yytext()); }
+"-" {
+    return symbol(sym.ADD_OP, yytext());
+}
 
-/* TOKENS */
+"*" {
+    return symbol(sym.MUL_OP, yytext());
+}
+
+"/" {
+    return symbol(sym.MUL_OP, yytext());
+}
+
+"%" {
+    return symbol(sym.MUL_OP, yytext());
+}
+
+/* =========================
+   IDENTIFICADORES
+========================= */
 
 {Identifier} {
     return symbol(sym.ID, yytext());
 }
 
+/* =========================
+   NÚMEROS
+========================= */
+
 {Number} {
     return symbol(sym.NUMBER, yytext());
 }
 
-/* ERRO */
+/* =========================
+   ERRO LÉXICO
+========================= */
 
 . {
     throw new RuntimeException(
-        "Erro Léxico: Caractere ilegal -> " + yytext()
+        "Erro Léxico: caractere ilegal -> '" +
+        yytext() +
+        "' na linha " + (yyline + 1) +
+        ", coluna " + (yycolumn + 1)
     );
 }
 
 }
+
+/* =========================
+   FIM DE ARQUIVO
+========================= */
 
 <<EOF>> {
     return symbol(sym.EOF);
