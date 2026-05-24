@@ -4,7 +4,7 @@ import java_cup.runtime.Symbol;
 
 parser code {:
     public void syntax_error(Symbol cur_token) {
-        System.err.println("Erro sintático!");
+        throw new Error("Erro sintático");
     }
 :};
 
@@ -30,12 +30,14 @@ precedence left TIMES, DIV, MOD;
 
 start with program;
 
-program ::= lista_comandos
+program ::=
+    lista_comandos
 ;
 
 lista_comandos ::=
       lista_comandos comando
     | comando
+    |
 ;
 
 comando ::=
