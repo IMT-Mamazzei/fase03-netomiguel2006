@@ -1,3 +1,5 @@
+package br.maua.cic303;
+
 import java_cup.runtime.Symbol;
 
 %%
@@ -21,11 +23,9 @@ private Symbol symbol(int type, Object value) {
 
 %}
 
-/* =========================
-   MACROS
-========================= */
+/* MACROS */
 
-LineTerminator = \r\n|\r|\n
+LineTerminator = \r|\n|\r\n
 WhiteSpace = {LineTerminator}|[ \t\f]
 
 Letter = [a-zA-Z]
@@ -39,160 +39,79 @@ Number = [0-9]+(\.[0-9]+)?([Ee][+-]?[0-9]+)?
 
 <YYINITIAL> {
 
-/* =========================
-   ESPAÇOS EM BRANCO
-========================= */
-
 {WhiteSpace} { }
 
-/* =========================
-   COMENTÁRIOS
-========================= */
+/* PALAVRAS RESERVADAS */
 
-/* Comentário de linha */
-"//".* { }
+"if" { return symbol(sym.IF); }
 
-/* Comentário de bloco */
-"/*"([^*]|\*+[^*/])*\*+"/" { }
+"then" { return symbol(sym.THEN); }
 
-/* =========================
-   PALAVRAS RESERVADAS
-========================= */
+"else" { return symbol(sym.ELSE); }
 
-"if" {
-    return symbol(sym.IF);
-}
+"while" { return symbol(sym.WHILE); }
 
-"then" {
-    return symbol(sym.THEN);
-}
+/* PONTUAÇÃO */
 
-"else" {
-    return symbol(sym.ELSE);
-}
+"(" { return symbol(sym.LPAREN); }
 
-"while" {
-    return symbol(sym.WHILE);
-}
+")" { return symbol(sym.RPAREN); }
 
-/* =========================
-   PONTUAÇÃO
-========================= */
+"{" { return symbol(sym.LBRACE); }
 
-"(" {
-    return symbol(sym.LPAREN);
-}
+"}" { return symbol(sym.RBRACE); }
 
-")" {
-    return symbol(sym.RPAREN);
-}
+";" { return symbol(sym.SEMI); }
 
-"{" {
-    return symbol(sym.LBRACE);
-}
+/* OPERADORES RELACIONAIS */
 
-"}" {
-    return symbol(sym.RBRACE);
-}
+"==" { return symbol(sym.REL_OP, yytext()); }
 
-";" {
-    return symbol(sym.SEMI);
-}
+"!=" { return symbol(sym.REL_OP, yytext()); }
 
-/* =========================
-   OPERADORES RELACIONAIS
-========================= */
+"<=" { return symbol(sym.REL_OP, yytext()); }
 
-"==" {
-    return symbol(sym.REL_OP, yytext());
-}
+">=" { return symbol(sym.REL_OP, yytext()); }
 
-"!=" {
-    return symbol(sym.REL_OP, yytext());
-}
+"<" { return symbol(sym.REL_OP, yytext()); }
 
-"<=" {
-    return symbol(sym.REL_OP, yytext());
-}
+">" { return symbol(sym.REL_OP, yytext()); }
 
-">=" {
-    return symbol(sym.REL_OP, yytext());
-}
+/* ATRIBUIÇÃO */
 
-"<" {
-    return symbol(sym.REL_OP, yytext());
-}
+"=" { return symbol(sym.ASSIGN); }
 
-">" {
-    return symbol(sym.REL_OP, yytext());
-}
+/* OPERADORES MATEMÁTICOS */
 
-/* =========================
-   ATRIBUIÇÃO
-========================= */
+"+" { return symbol(sym.ADD_OP, yytext()); }
 
-"=" {
-    return symbol(sym.ASSIGN);
-}
+"-" { return symbol(sym.ADD_OP, yytext()); }
 
-/* =========================
-   OPERADORES MATEMÁTICOS
-========================= */
+"*" { return symbol(sym.MUL_OP, yytext()); }
 
-"+" {
-    return symbol(sym.ADD_OP, yytext());
-}
+"/" { return symbol(sym.MUL_OP, yytext()); }
 
-"-" {
-    return symbol(sym.ADD_OP, yytext());
-}
+"%" { return symbol(sym.MUL_OP, yytext()); }
 
-"*" {
-    return symbol(sym.MUL_OP, yytext());
-}
-
-"/" {
-    return symbol(sym.MUL_OP, yytext());
-}
-
-"%" {
-    return symbol(sym.MUL_OP, yytext());
-}
-
-/* =========================
-   IDENTIFICADORES
-========================= */
+/* TOKENS */
 
 {Identifier} {
     return symbol(sym.ID, yytext());
 }
 
-/* =========================
-   NÚMEROS
-========================= */
-
 {Number} {
     return symbol(sym.NUMBER, yytext());
 }
 
-/* =========================
-   ERRO LÉXICO
-========================= */
+/* ERRO */
 
 . {
     throw new RuntimeException(
-        "Erro Léxico: caractere ilegal -> '" +
-        yytext() +
-        "' na linha " + (yyline + 1) +
-        ", coluna " + (yycolumn + 1)
+        "Erro Léxico: Caractere ilegal -> " + yytext()
     );
 }
 
 }
-
-/* =========================
-   FIM DE ARQUIVO
-========================= */
 
 <<EOF>> {
     return symbol(sym.EOF);

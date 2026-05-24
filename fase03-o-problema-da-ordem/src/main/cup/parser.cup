@@ -1,3 +1,5 @@
+package br.maua.cic303;
+
 import java_cup.runtime.*;
 
 parser code {:
