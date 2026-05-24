@@ -1,83 +1,73 @@
 package br.maua.cic303;
 
-import java_cup.runtime.*;
+import java_cup.runtime.Symbol;
 
 parser code {:
     public void syntax_error(Symbol cur_token) {
-        throw new RuntimeException(
-            "Erro Sintático na linha " +
-            cur_token.left +
-            ", coluna " +
-            cur_token.right
-        );
+        System.out.println("Erro sintático na linha " + cur_token.left);
     }
 :};
 
-/* TERMINAIS */
 terminal IF, THEN, ELSE, WHILE;
-terminal ASSIGN, LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
+terminal PLUS, MINUS, TIMES, DIV, MOD;
+terminal ASSIGN;
+terminal EQ, NE, GT, LT, GE, LE;
+terminal LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
 
 terminal String ID;
-terminal String NUMBER;
+terminal Integer NUMBER;
 
-terminal String ADD_OP;
-terminal String MUL_OP;
-terminal String REL_OP;
-
-/* NÃO TERMINAIS */
 non terminal program;
-non terminal stmt_list;
-non terminal stmt;
-
-non terminal assign_stmt;
-non terminal if_stmt;
-non terminal while_stmt;
-non terminal block_stmt;
-non terminal null_stmt;
-
-non terminal expr;
+non terminal lista_comandos;
+non terminal comando;
+non terminal bloco;
+non terminal expressao;
 
 /* PRECEDÊNCIA */
-precedence left REL_OP;
-precedence left ADD_OP;
-precedence left MUL_OP;
+precedence left EQ, NE, GT, LT, GE, LE;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIV, MOD;
 
-/* INÍCIO */
 start with program;
 
 /* GRAMÁTICA */
 
-program ::= stmt_list ;
+program ::= lista_comandos
+;
 
-stmt_list ::= stmt_list stmt
-            | stmt
-            ;
+lista_comandos ::=
+      lista_comandos comando
+    | comando
+;
 
-stmt ::= assign_stmt
-       | if_stmt
-       | while_stmt
-       | block_stmt
-       | null_stmt
-       ;
+comando ::=
+      ID ASSIGN expressao SEMI
+    | IF LPAREN expressao RPAREN THEN bloco
+    | IF LPAREN expressao RPAREN THEN bloco ELSE bloco
+    | WHILE LPAREN expressao RPAREN bloco
+    | bloco
+    | SEMI
+;
 
-assign_stmt ::= ID ASSIGN expr SEMI ;
+bloco ::=
+      LBRACE lista_comandos RBRACE
+;
 
-if_stmt ::= IF LPAREN expr RPAREN THEN block_stmt
-          | IF LPAREN expr RPAREN THEN block_stmt ELSE block_stmt
-          ;
+expressao ::=
+      expressao PLUS expressao
+    | expressao MINUS expressao
+    | expressao TIMES expressao
+    | expressao DIV expressao
+    | expressao MOD expressao
 
-while_stmt ::= WHILE LPAREN expr RPAREN block_stmt ;
+    | expressao EQ expressao
+    | expressao NE expressao
+    | expressao GT expressao
+    | expressao LT expressao
+    | expressao GE expressao
+    | expressao LE expressao
 
-block_stmt ::= LBRACE stmt_list RBRACE
-             | LBRACE RBRACE
-             ;
-
-null_stmt ::= SEMI ;
-
-expr ::= expr ADD_OP expr
-       | expr MUL_OP expr
-       | expr REL_OP expr
-       | LPAREN expr RPAREN
-       | NUMBER
-       | ID
-       ;
+    | LPAREN expressao RPAREN
+    | ID
+    | NUMBER
+;
