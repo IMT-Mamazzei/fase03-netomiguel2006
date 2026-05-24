@@ -4,7 +4,7 @@ import java_cup.runtime.Symbol;
 
 parser code {:
     public void syntax_error(Symbol cur_token) {
-        System.out.println("Erro sintático na linha " + cur_token.left);
+        System.err.println("Erro sintático!");
     }
 :};
 
@@ -23,14 +23,12 @@ non terminal comando;
 non terminal bloco;
 non terminal expressao;
 
-/* PRECEDÊNCIA */
+precedence right ELSE;
 precedence left EQ, NE, GT, LT, GE, LE;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIV, MOD;
 
 start with program;
-
-/* GRAMÁTICA */
 
 program ::= lista_comandos
 ;
