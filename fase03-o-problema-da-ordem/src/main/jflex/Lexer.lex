@@ -1,63 +1,84 @@
-import java_cup.runtime.Symbol;
+O parser.cup
+package br.maua.cic303;
 
-%%
+import java_cup.runtime.*;
 
-%class Lexer
-%public
-%unicode
-%cup
-%line
-%column
+parser code {:
+    public void syntax_error(Symbol cur_token) {
+        throw new RuntimeException(
+            "Erro Sintático na linha " +
+            cur_token.left +
+            ", coluna " +
+            cur_token.right
+        );
+    }
+:};
 
-%{
+/* TERMINAIS */
+terminal IF, THEN, ELSE, WHILE;
+terminal ASSIGN, LPAREN, RPAREN, LBRACE, RBRACE, SEMI;
 
-private Symbol symbol(int type) {
-    return new Symbol(type, yyline, yycolumn);
-}
+terminal String ID;
+terminal String NUMBER;
 
-private Symbol symbol(int type, Object value) {
-    return new Symbol(type, yyline, yycolumn, value);
-}
+terminal String ADD_OP;
+terminal String MUL_OP;
+terminal String REL_OP;
 
-%}
+/* NÃO TERMINAIS */
+non terminal program;
+non terminal stmt_list;
+non terminal stmt;
 
-LineTerminator = \r|\n|\r\n
-WhiteSpace = {LineTerminator} | [ \t\f]
+non terminal assign_stmt;
+non terminal if_stmt;
+non terminal while_stmt;
+non terminal block_stmt;
+non terminal null_stmt;
 
-ID = [a-zA-Z_][a-zA-Z0-9_]*
-NUMBER = [0-9]+
+non terminal expr;
 
-%%
+/* PRECEDÊNCIA */
+precedence left REL_OP;
+precedence left ADD_OP;
+precedence left MUL_OP;
 
-{WhiteSpace}     { }
+/* INÍCIO */
+start with program;
 
-"if"             { return symbol(sym.IF); }
-"then"           { return symbol(sym.THEN); }
-"else"           { return symbol(sym.ELSE); }
-"while"          { return symbol(sym.WHILE); }
+/* GRAMÁTICA */
 
-"=="             { return symbol(sym.EQ); }
-"!="             { return symbol(sym.NE); }
-">="             { return symbol(sym.GE); }
-"<="             { return symbol(sym.LE); }
-">"              { return symbol(sym.GT); }
-"<"              { return symbol(sym.LT); }
+program ::= stmt_list ;
 
-"+"              { return symbol(sym.PLUS); }
-"-"              { return symbol(sym.MINUS); }
-"*"              { return symbol(sym.TIMES); }
-"/"              { return symbol(sym.DIV); }
-"%"              { return symbol(sym.MOD); }
+stmt_list ::= stmt_list stmt
+            | stmt
+            ;
 
-"="              { return symbol(sym.ASSIGN); }
+stmt ::= assign_stmt
+       | if_stmt
+       | while_stmt
+       | block_stmt
+       | null_stmt
+       ;
 
-";"              { return symbol(sym.SEMI); }
-"("              { return symbol(sym.LPAREN); }
-")"              { return symbol(sym.RPAREN); }
-"{"              { return symbol(sym.LBRACE); }
-"}"              { return symbol(sym.RBRACE); }
+assign_stmt ::= ID ASSIGN expr SEMI ;
 
-{ID}             { return symbol(sym.ID, yytext()); }
-{NUMBER}         { return symbol(sym.NUMBER, Integer.parseInt(yytext())); }
+if_stmt ::= IF LPAREN expr RPAREN THEN block_stmt
+          | IF LPAREN expr RPAREN THEN block_stmt ELSE block_stmt
+          ;
 
-.                { throw new Error("Caractere inválido: " + yytext()); }
+while_stmt ::= WHILE LPAREN expr RPAREN block_stmt ;
+
+block_stmt ::= LBRACE stmt_list RBRACE
+             | LBRACE RBRACE
+             ;
+
+null_stmt ::= SEMI ;
+
+expr ::= expr ADD_OP expr
+       | expr MUL_OP expr
+       | expr REL_OP expr
+       | LPAREN expr RPAREN
+       | NUMBER
+       | ID
+       ;
